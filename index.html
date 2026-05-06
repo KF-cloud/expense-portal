@@ -766,8 +766,25 @@ function initDB(){return new Promise((res,rej)=>{
   };
   r.onsuccess=e=>{db=e.target.result;res(db);};r.onerror=e=>rej(e.target.error);
 });}
-function dbAll(s){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly'),r=t.objectStore(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
-function dbPut(s,o){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite'),r=t.objectStore(s).put(o);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function dbAll(store){
+
+  const snap = await firebaseFns.getDocs(
+    firebaseFns.collection(db, store)
+  );
+
+  return snap.docs.map(d=>({
+    id:d.id,
+    ...d.data()
+  }));
+
+}
+  async function dbPut(store,data){
+
+  const col = firebaseFns.collection(db, store);
+
+  await firebaseFns.addDoc(col, data);
+
+}
 function dbDel(s,id){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite'),r=t.objectStore(s).delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});}
 function dbGet(s,k){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly'),r=t.objectStore(s).get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 
