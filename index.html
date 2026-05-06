@@ -258,47 +258,6 @@ tbody td:first-child{color:var(--text);}
 @media(max-width:900px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0!important;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.row-2,.row-3{grid-template-columns:1fr;}.form-grid{grid-template-columns:1fr;}.hamburger{display:flex;}.cycle-stats{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr;}.topbar{flex-wrap:wrap;gap:10px;}.month-stats{grid-template-columns:repeat(2,1fr);}.branch-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
-  <script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-
-  apiKey: "PASTE",
-
-  authDomain: "PASTE",
-
-  projectId: "PASTE",
-
-  storageBucket: "PASTE",
-
-  messagingSenderId: "PASTE",
-
-  appId: "PASTE"
-
-};
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-window.db = db;
-
-window.firebaseFns = {
-  collection,
-  addDoc,
-  getDocs
-};
-
-</script>
 </head>
 <body>
 
@@ -766,25 +725,8 @@ function initDB(){return new Promise((res,rej)=>{
   };
   r.onsuccess=e=>{db=e.target.result;res(db);};r.onerror=e=>rej(e.target.error);
 });}
-async function dbAll(store){
-
-  const snap = await firebaseFns.getDocs(
-    firebaseFns.collection(db, store)
-  );
-
-  return snap.docs.map(d=>({
-    id:d.id,
-    ...d.data()
-  }));
-
-}
-  async function dbPut(store,data){
-
-  const col = firebaseFns.collection(db, store);
-
-  await firebaseFns.addDoc(col, data);
-
-}
+function dbAll(s){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly'),r=t.objectStore(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function dbPut(s,o){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite'),r=t.objectStore(s).put(o);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 function dbDel(s,id){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite'),r=t.objectStore(s).delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});}
 function dbGet(s,k){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly'),r=t.objectStore(s).get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 
